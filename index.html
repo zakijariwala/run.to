@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>run.to | Open Engine</title>
+    
+    <!-- PWA Settings -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="apple-touch-icon" href="icon.svg">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Tailwind CSS (CDN for zero-build) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        bg: '#000000',
+                        panel: '#000000',
+                        accent: '#22d3ee',
+                        border: '#333333',
+                        text: '#ffffff',
+                        'text-dim': '#888888'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-bg text-text font-sans h-[100dvh] flex flex-col overflow-hidden selection:bg-accent selection:text-black">
+    
+    <!-- Header -->
+    <header class="h-14 md:h-16 border-b border-border flex items-center justify-between px-4 md:px-6 bg-bg z-30">
+        <div class="flex items-center gap-3">
+            <div class="text-xl font-extrabold tracking-tighter text-accent uppercase">
+                run.to
+            </div>
+            <div class="text-[10px] font-mono text-text-dim border border-border px-2 py-0.5 uppercase tracking-widest">
+                Monolith
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span class="text-[10px] font-mono text-text-dim uppercase tracking-widest">OSRM Online</span>
+        </div>
+    </header>
+
+    <main class="flex-1 relative overflow-hidden flex flex-col md:flex-row">
+        <!-- Control Unit (Sidebar) -->
+        <aside id="bottom-sheet" class="absolute bottom-0 left-0 right-0 max-h-[75vh] md:max-h-none md:relative w-full md:w-80 md:flex-none border-t md:border-t-0 md:border-r border-border flex flex-col bg-bg z-20 transition-transform duration-300 ease-out translate-y-0">
+            <!-- Drag Handle Area -->
+            <div id="drag-handle" class="w-full pt-4 pb-2 flex justify-center md:hidden touch-pan-y cursor-pointer bg-bg border-b border-border">
+                <div class="w-12 h-1.5 bg-border"></div>
+            </div>
+            <div class="flex-1 overflow-y-auto px-5 pb-5 md:p-6 space-y-6 md:space-y-8">
+                
+                <!-- Input Mode Toggle -->
+                <div class="flex bg-panel border border-border p-1 text-[10px] font-bold uppercase tracking-widest text-text-dim mb-2">
+                    <button id="mode-distance" class="flex-1 py-2 bg-accent text-bg transition-all">Distance</button>
+                    <button id="mode-time" class="flex-1 py-2 hover:text-text transition-all">Time</button>
+                </div>
+
+                <!-- Target Input -->
+                <section class="space-y-4">
+                    <label class="flex items-center gap-2 text-[10px] font-bold text-text-dim uppercase tracking-widest">
+                        <i data-lucide="target" class="w-3 h-3 text-accent"></i> <span id="input-label">Target Distance</span>
+                    </label>
+                    <div class="flex justify-between items-end">
+                        <span class="text-3xl font-bold font-mono text-accent" id="input-display">
+                            5.0<span class="text-xs text-text-dim ml-1 uppercase" id="input-unit">km</span>
+                        </span>
+                    </div>
+                    <input type="range" id="input-slider" min="1" max="20" step="0.5" value="5" class="w-full h-1 bg-border appearance-none cursor-pointer accent-accent">
+                    <div class="flex justify-between text-[8px] font-mono text-text-dim" id="input-ticks">
+                        <span>1KM</span><span>10KM</span><span>20KM</span>
+                    </div>
+                </section>
+
+                <!-- Results Section -->
+                <section id="results-section" class="space-y-3 hidden opacity-0 transition-opacity duration-500">
+                    <label class="flex items-center gap-2 text-[10px] font-bold text-text-dim uppercase tracking-widest">
+                        <i data-lucide="map" class="w-3 h-3 text-accent"></i> Generated Route
+                    </label>
+                    
+                    <div class="bg-panel border border-border p-4 space-y-4 relative overflow-hidden">
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <div class="text-[10px] text-text-dim uppercase font-bold mb-1">Distance</div>
+                                <div class="text-xl font-bold" id="result-distance">-- km</div>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-text-dim uppercase font-bold mb-1">Time</div>
+                                <div class="text-xl font-bold" id="result-time">-- m</div>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 border-t border-border">
+                            <div class="text-[10px] text-text-dim uppercase font-bold mb-2 flex items-center gap-1">
+                                <i data-lucide="map-pin" class="w-3 h-3 text-emerald-400"></i> Major Stops
+                            </div>
+                            <a id="btn-google-maps" href="#" target="_blank" class="w-full py-2 bg-panel border border-border text-text font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-border transition-all">
+                                Open in Google Maps
+                            </a>
+                        </div>
+
+                        <!-- Error/Mock State Message -->
+                        <div id="mock-warning" class="hidden p-2 bg-rose-500/10 border border-rose-500/20 text-[9px] font-mono text-rose-400 mt-2 flex items-start gap-2">
+                            <i data-lucide="alert-triangle" class="w-3 h-3 flex-shrink-0 mt-0.5"></i>
+                            <span class="leading-relaxed">Routing API unavailable. Showing geometric projection.</span>
+                        </div>
+
+                        <div class="pt-2 flex flex-col gap-2">
+                            <button id="btn-export-gpx" class="w-full py-2.5 bg-panel border border-accent text-accent font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-accent hover:text-bg transition-all">
+                                <i data-lucide="download" class="w-3 h-3"></i> Export GPX
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- Action Area -->
+            <div class="p-4 md:p-6 border-t border-border bg-bg">
+                <button id="btn-generate" class="w-full py-4 bg-accent text-bg font-bold uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2">
+                    <i data-lucide="play" class="w-4 h-4"></i> Generate Route
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Map Area -->
+        <section class="absolute inset-0 md:relative md:flex-1 bg-[#000000] z-10">
+            <!-- Leaflet Target -->
+            <div id="map" class="absolute inset-0 z-10"></div>
+            
+            <!-- Loading Overlay -->
+            <div id="loading-overlay" class="absolute inset-0 bg-bg z-20 flex flex-col items-center justify-center hidden opacity-0 transition-opacity duration-300">
+                <div class="w-12 h-12 border-4 border-border border-t-accent animate-spin"></div>
+                <div class="mt-4 font-mono text-[10px] text-accent uppercase tracking-widest animate-pulse">Calculating Path...</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Location Permission Blocker -->
+    <div id="location-blocker" class="fixed inset-0 bg-bg z-50 flex flex-col items-center justify-center p-6 text-center hidden">
+        <div class="bg-panel border border-border p-8 max-w-sm w-full flex flex-col items-center gap-4">
+            <div class="w-16 h-16 bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 mb-2">
+                <i data-lucide="map-pin-off" class="w-8 h-8"></i>
+            </div>
+            <h2 class="text-xl font-bold text-text">Location Required</h2>
+            <p class="text-sm text-text-dim leading-relaxed">
+                Precise location is needed to function. We cannot generate a starting point without your current coordinates.
+            </p>
+            <p class="text-[10px] text-text-dim/60 mb-2">If you previously denied access, you may need to enable it in your browser settings.</p>
+            <button id="btn-retry-location" class="w-full py-4 bg-accent text-bg font-bold uppercase tracking-widest transition-all border border-accent flex items-center justify-center gap-2 hover:bg-bg hover:text-accent">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Retry Access
+            </button>
+            <button id="btn-skip-location" class="w-full py-3 text-text-dim text-[10px] font-bold uppercase tracking-widest border border-border flex items-center justify-center transition-all hover:bg-border hover:text-text mt-2">
+                Move On
+            </button>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    
+    <!-- Application Scripts -->
+    <script src="js/routeEngine.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

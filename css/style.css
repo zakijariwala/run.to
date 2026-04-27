@@ -1,0 +1,69 @@
+/* css/style.css */
+
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
+/* Leaflet Dark Mode Overrides */
+.leaflet-container {
+    background-color: #0f172a !important;
+    /* bg-bg */
+    font-family: 'Inter', sans-serif !important;
+}
+
+/* Add a filter to tiles to make standard OSM tiles dark */
+.leaflet-tile-pane {
+    filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+
+/* Hide leaflet branding for a cleaner POC look */
+.leaflet-control-attribution {
+    display: none !important;
+}
+
+/* Custom Polyline glow effects using SVG drop-shadow (Leaflet paths are SVG) */
+path.leaflet-interactive {
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    /* Adding a subtle glow to the route line */
+    filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.5));
+}
+
+/* Range Input Styling to match Tailwind Accent */
+input[type=range] {
+    -webkit-appearance: none;
+    background: transparent;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: #22d3ee;
+    cursor: pointer;
+    margin-top: -6px;
+    /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    cursor: pointer;
+    background: #334155;
+    border-radius: 2px;
+}
+
+/* Utility classes for JS toggling */
+.fade-in {
+    opacity: 1 !important;
+    display: block !important;
+}
+
+.fade-out {
+    opacity: 0 !important;
+}
+
+.hidden-element {
+    display: none !important;
+}
