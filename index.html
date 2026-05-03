@@ -53,7 +53,7 @@
                 run.to
             </div>
             <div class="text-[10px] font-mono text-text-dim border border-border px-2 py-0.5 uppercase tracking-widest">
-                Monolith
+                Big Stone
             </div>
         </div>
         <div class="flex items-center gap-2">
@@ -61,7 +61,7 @@
               <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75"></span>
               <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <span class="text-[10px] font-mono text-text-dim uppercase tracking-widest">OSRM Online</span>
+            <span class="text-[10px] font-mono text-text-dim uppercase tracking-widest">Sky Talker OK</span>
         </div>
     </header>
 
@@ -76,14 +76,14 @@
                 
                 <!-- Input Mode Toggle -->
                 <div class="flex bg-panel border border-border p-1 text-[10px] font-bold uppercase tracking-widest text-text-dim mb-2">
-                    <button id="mode-distance" class="flex-1 py-2 bg-accent text-bg transition-all">Distance</button>
-                    <button id="mode-time" class="flex-1 py-2 hover:text-text transition-all">Time</button>
+                    <button id="mode-distance" class="flex-1 py-2 bg-accent text-bg transition-all">How Far</button>
+                    <button id="mode-time" class="flex-1 py-2 hover:text-text transition-all">How Long</button>
                 </div>
 
                 <!-- Target Input -->
                 <section class="space-y-4">
                     <label class="flex items-center gap-2 text-[10px] font-bold text-text-dim uppercase tracking-widest">
-                        <i data-lucide="target" class="w-3 h-3 text-accent"></i> <span id="input-label">Target Distance</span>
+                        <i data-lucide="target" class="w-3 h-3 text-accent"></i> <span id="input-label">Hunt Size</span>
                     </label>
                     <div class="flex justify-between items-end">
                         <span class="text-3xl font-bold font-mono text-accent" id="input-display">
@@ -98,7 +98,7 @@
                     <!-- Start Location Toggle -->
                     <div class="pt-2 flex items-center justify-between">
                         <label for="toggle-nearby" class="text-[10px] font-bold text-text-dim uppercase tracking-widest flex items-center gap-2 cursor-pointer">
-                            <i data-lucide="map-pin" class="w-3 h-3 text-accent"></i> Start exactly here
+                            <i data-lucide="map-pin" class="w-3 h-3 text-accent"></i> Start at Cave
                         </label>
                         <div class="relative inline-flex h-5 w-9 items-center justify-center rounded-full bg-border p-1 cursor-pointer" id="toggle-nearby-container">
                             <input type="checkbox" id="toggle-nearby" class="sr-only peer" checked>
@@ -111,19 +111,19 @@
                 <!-- Results Section -->
                 <section id="results-section" class="space-y-3 hidden opacity-0 transition-opacity duration-500">
                     <label class="flex items-center gap-2 text-[10px] font-bold text-text-dim uppercase tracking-widest">
-                        <i data-lucide="map" class="w-3 h-3 text-accent"></i> Generated Route
+                        <i data-lucide="map" class="w-3 h-3 text-accent"></i> Path Found
                     </label>
                     
                     <div class="bg-panel border border-border p-4 space-y-4 relative overflow-hidden results-container">
                         
                         <div class="grid grid-cols-2 gap-4">
                             <div class="data-block">
-                                <div class="text-[10px] text-text-dim uppercase font-bold mb-1">Distance</div>
+                                <div class="text-[10px] text-text-dim uppercase font-bold mb-1">Length</div>
                                 <div class="text-xl font-bold data-value" id="result-distance">-- km</div>
                                 <div class="h-6 w-20 bg-border skeleton rounded hidden"></div>
                             </div>
                             <div class="data-block">
-                                <div class="text-[10px] text-text-dim uppercase font-bold mb-1">Time</div>
+                                <div class="text-[10px] text-text-dim uppercase font-bold mb-1">Speed</div>
                                 <div class="text-xl font-bold data-value" id="result-time">-- m</div>
                                 <div class="h-6 w-16 bg-border skeleton rounded hidden"></div>
                             </div>
@@ -132,7 +132,7 @@
                         <!-- Pace & Splits -->
                         <div id="splits-container" class="pt-2 border-t border-border space-y-2">
                             <div class="text-[10px] text-text-dim uppercase font-bold flex items-center gap-1">
-                                <i data-lucide="timer" class="w-3 h-3 text-accent"></i> Pace & Splits
+                                <i data-lucide="timer" class="w-3 h-3 text-accent"></i> Foot Speed
                             </div>
                             <div id="splits-list" class="grid grid-cols-2 gap-2 text-[10px] font-mono">
                                 <!-- Dynamic content -->
@@ -145,22 +145,22 @@
 
                         <div class="pt-2 border-t border-border">
                             <div class="text-[10px] text-text-dim uppercase font-bold mb-2 flex items-center gap-1">
-                                <i data-lucide="map-pin" class="w-3 h-3 text-emerald-400"></i> Major Stops
+                                <i data-lucide="map-pin" class="w-3 h-3 text-emerald-400"></i> Rest Rocks
                             </div>
                             <a id="btn-google-maps" href="#" target="_blank" class="w-full py-2 bg-panel border border-border text-text font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-border transition-all">
-                                Open in Google Maps
+                                Show Big Map
                             </a>
                         </div>
 
                         <!-- Error/Mock State Message -->
                         <div id="mock-warning" class="hidden p-2 bg-rose-500/10 border border-rose-500/20 text-[9px] font-mono text-rose-400 mt-2 flex items-start gap-2">
                             <i data-lucide="alert-triangle" class="w-3 h-3 flex-shrink-0 mt-0.5"></i>
-                            <span class="leading-relaxed">Routing API unavailable. Showing geometric projection.</span>
+                            <span class="leading-relaxed">Sky Talker failed. Geometric projection used.</span>
                         </div>
 
                         <div class="pt-2 flex flex-col gap-2">
                             <button id="btn-export-gpx" class="w-full py-2.5 bg-panel border border-accent text-accent font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-accent hover:text-bg transition-all">
-                                <i data-lucide="download" class="w-3 h-3"></i> Export GPX
+                                <i data-lucide="download" class="w-3 h-3"></i> Carve Rock
                             </button>
                         </div>
                     </div>
@@ -171,7 +171,7 @@
             <!-- Action Area -->
             <div class="p-4 md:p-6 border-t border-border bg-bg">
                 <button id="btn-generate" class="w-full py-4 bg-accent text-bg font-bold uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2">
-                    <i data-lucide="play" class="w-4 h-4"></i> Generate Route
+                    <i data-lucide="play" class="w-4 h-4"></i> Find Loop
                 </button>
             </div>
         </aside>
@@ -184,27 +184,27 @@
             <!-- Loading Overlay -->
             <div id="loading-overlay" class="absolute inset-0 bg-bg z-20 flex flex-col items-center justify-center hidden opacity-0 transition-opacity duration-300">
                 <div class="w-12 h-12 border-4 border-border border-t-accent animate-spin"></div>
-                <div class="mt-4 font-mono text-[10px] text-accent uppercase tracking-widest animate-pulse">Calculating Path...</div>
+                <div class="mt-4 font-mono text-[10px] text-accent uppercase tracking-widest animate-pulse">Thinking...</div>
             </div>
         </section>
     </main>
 
     <!-- Location Permission Blocker -->
     <div id="location-blocker" class="fixed inset-0 bg-bg z-50 flex flex-col items-center justify-center p-6 text-center hidden">
-        <div class="bg-panel border border-border p-8 max-w-sm w-full flex flex-col items-center gap-4">
+        <div class="bg-panel border border-border p-8 max-sm w-full flex flex-col items-center gap-4">
             <div class="w-16 h-16 bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 mb-2">
                 <i data-lucide="map-pin-off" class="w-8 h-8"></i>
             </div>
-            <h2 class="text-xl font-bold text-text">Location Required</h2>
+            <h2 class="text-xl font-bold text-text">Where Cave?</h2>
             <p class="text-sm text-text-dim leading-relaxed">
-                Precise location is needed to function. We cannot generate a starting point without your current coordinates.
+                Need know where you are. Cannot find path without your spot.
             </p>
-            <p class="text-[10px] text-text-dim/60 mb-2">If you previously denied access, you may need to enable it in your browser settings.</p>
+            <p class="text-[10px] text-text-dim/60 mb-2">Check browser settings if you blocked us.</p>
             <button id="btn-retry-location" class="w-full py-4 bg-accent text-bg font-bold uppercase tracking-widest transition-all border border-accent flex items-center justify-center gap-2 hover:bg-bg hover:text-accent">
-                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Retry Access
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Try Again
             </button>
             <button id="btn-skip-location" class="w-full py-3 text-text-dim text-[10px] font-bold uppercase tracking-widest border border-border flex items-center justify-center transition-all hover:bg-border hover:text-text mt-2">
-                Move On
+                Go Anyway
             </button>
         </div>
     </div>

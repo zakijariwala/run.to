@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Show loading state on retry button briefly
         const originalText = btnRetryLocation.innerHTML;
-        btnRetryLocation.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Requesting...`;
+        btnRetryLocation.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Asking Sky...`;
         lucide.createIcons();
         
         // Revert button text after a short delay
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modeTime.classList.remove('bg-accent', 'text-bg', 'shadow-sm');
         modeTime.classList.add('hover:text-text');
 
-        inputLabel.innerText = 'Target Distance';
+        inputLabel.innerText = 'Hunt Size';
         inputSlider.min = '1';
         inputSlider.max = '20';
         inputSlider.step = '0.5';
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modeDistance.classList.remove('bg-accent', 'text-bg', 'shadow-sm');
         modeDistance.classList.add('hover:text-text');
 
-        inputLabel.innerText = 'Target Time';
+        inputLabel.innerText = 'Run Time';
         inputSlider.min = '10';
         inputSlider.max = '120';
         inputSlider.step = '5';
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // UI Loading State (Skeleton)
         btnGenerate.disabled = true;
-        btnGenerate.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Generating`;
+        btnGenerate.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Thinking...`;
         lucide.createIcons();
         
         // Show results pane in loading state
@@ -252,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             // Restore UI
             btnGenerate.disabled = false;
-            btnGenerate.innerHTML = `<i data-lucide="play" class="w-4 h-4"></i> Generate Route`;
+            btnGenerate.innerHTML = `<i data-lucide="play" class="w-4 h-4"></i> Find Loop`;
             lucide.createIcons();
         }
     });
