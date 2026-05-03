@@ -14,11 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnGenerate = document.getElementById('btn-generate');
     const btnExportGpx = document.getElementById('btn-export-gpx');
     const resultsSection = document.getElementById('results-section');
+    const resultsContainer = document.querySelector('.results-container');
     const resultDistance = document.getElementById('result-distance');
     const resultTime = document.getElementById('result-time');
+    const splitsList = document.getElementById('splits-list');
     const loadingOverlay = document.getElementById('loading-overlay');
     const mockWarning = document.getElementById('mock-warning');
     const btnGoogleMaps = document.getElementById('btn-google-maps');
+    const toggleNearby = document.getElementById('toggle-nearby');
     const locationBlocker = document.getElementById('location-blocker');
     const btnRetryLocation = document.getElementById('btn-retry-location');
     const btnSkipLocation = document.getElementById('btn-skip-location');
@@ -168,17 +171,22 @@ document.addEventListener('DOMContentLoaded', () => {
             distanceMeters = (targetMins / 5.5) * 1000;
         }
 
-        // UI Loading State
+        // UI Loading State (Skeleton)
         btnGenerate.disabled = true;
         btnGenerate.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Generating`;
         lucide.createIcons();
-        loadingOverlay.classList.remove('hidden');
-        setTimeout(() => loadingOverlay.classList.remove('opacity-0'), 10);
-        resultsSection.classList.add('opacity-0');
+        
+        // Show results pane in loading state
+        resultsSection.classList.remove('hidden');
+        resultsSection.classList.remove('opacity-0');
+        resultsContainer.classList.add('is-loading');
 
         try {
             // Call Route Engine
-            currentRouteData = await RouteEngine.findOptimizedRoute(userLocation.lat, userLocation.lng, distanceMeters);
+            const startAtLocation = toggleNearby ? toggleNearby.checked : true;
+            currentRouteData = await RouteEngine.findOptimizedRoute(userLocation.lat, userLocation.lng, distanceMeters, {
+                startAtLocation: startAtLocation
+            });
 
             // Draw on map
             if (routePolyline) {
@@ -209,6 +217,15 @@ document.addEventListener('DOMContentLoaded', () => {
             // Estimate running time based on an average 5.5 min/km pace
             const estimatedMins = Math.round((currentRouteData.distance / 1000) * 5.5);
             resultTime.innerText = estimatedMins + ' m';
+
+            // Update Splits
+            const splits = RouteEngine.calculateSplits(currentRouteData.distance, 5.5);
+            splitsList.innerHTML = splits.map(s => `
+                <div class="flex justify-between border-b border-border pb-1">
+                    <span class="text-text-dim uppercase">KM ${s.km}</span>
+                    <span class="text-accent font-bold">${s.time}</span>
+                </div>
+            `).join('');
             
             // Generate Google Maps Link
             if (currentRouteData.waypoints && currentRouteData.waypoints.length > 0) {
@@ -225,20 +242,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 mockWarning.classList.add('hidden');
             }
 
-            // Show Results pane
-            resultsSection.classList.remove('hidden');
-            setTimeout(() => resultsSection.classList.remove('opacity-0'), 100);
+            // Remove loading state
+            resultsContainer.classList.remove('is-loading');
 
         } catch (error) {
             console.error("Error generating route:", error);
             alert("Failed to generate route. Check console for details.");
+            resultsSection.classList.add('hidden');
         } finally {
             // Restore UI
             btnGenerate.disabled = false;
             btnGenerate.innerHTML = `<i data-lucide="play" class="w-4 h-4"></i> Generate Route`;
             lucide.createIcons();
-            loadingOverlay.classList.add('opacity-0');
-            setTimeout(() => loadingOverlay.classList.add('hidden'), 300);
         }
     });
 

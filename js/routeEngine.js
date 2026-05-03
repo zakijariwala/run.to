@@ -7,9 +7,11 @@ const RouteEngine = {
      * @param {number} lng - Starting longitude
      * @param {number} targetDistance - In meters
      * @param {number} radiusFactor - Scaling factor for fuzzy logic iterations
+     * @param {number} sides - Number of polygon sides
+     * @param {boolean} startAtLocation - Whether to start exactly at (lat, lng)
      * @returns {Array} Array of {lat, lng} coordinate objects
      */
-    generateGeometricLoop: function(lat, lng, targetDistance, radiusFactor = 1.0, sides = 6) {
+    generateGeometricLoop: function(lat, lng, targetDistance, radiusFactor = 1.0, sides = 6, startAtLocation = true) {
 
         
         // Rough Earth circumference calculation for radius
@@ -20,17 +22,24 @@ const RouteEngine = {
         const waypoints = [];
         const randomOffset = Math.random() * Math.PI * 2;
 
-        // Calculate center so that the start point is on the perimeter
+        // Calculate center. 
+        // If startAtLocation is true, we calculate center such that (lat, lng) is on perimeter.
         const centerLat = lat - radiusInDegrees * Math.cos(randomOffset);
         // Approximation for longitude spacing based on latitude
         const centerLng = lng - (radiusInDegrees / Math.cos(lat * Math.PI / 180)) * Math.sin(randomOffset);
 
         for (let i = 0; i < sides; i++) {
             const angle = (i * 2 * Math.PI) / sides + randomOffset;
-            waypoints.push({
-                lat: centerLat + radiusInDegrees * Math.cos(angle),
-                lng: centerLng + (radiusInDegrees / Math.cos(centerLat * Math.PI / 180)) * Math.sin(angle),
-            });
+            const pLat = centerLat + radiusInDegrees * Math.cos(angle);
+            const pLng = centerLng + (radiusInDegrees / Math.cos(centerLat * Math.PI / 180)) * Math.sin(angle);
+            
+            // For the first point (i=0), if startAtLocation is true, use the EXACT provided coordinates
+            // to avoid precision drift or center-point mismatch.
+            if (i === 0 && startAtLocation) {
+                waypoints.push({ lat: lat, lng: lng });
+            } else {
+                waypoints.push({ lat: pLat, lng: pLng });
+            }
         }
 
         // Close the loop
@@ -110,10 +119,18 @@ const RouteEngine = {
     /**
      * Fuzzy distance matching with recursive scaling.
      */
-    findOptimizedRoute: async function(lat, lng, targetDistanceMeters, maxRetries = 5, currentAttempt = 1, radiusFactor = 1.0, sides = 6) {
+    findOptimizedRoute: async function(lat, lng, targetDistanceMeters, options = {}) {
+        const {
+            maxRetries = 5,
+            currentAttempt = 1,
+            radiusFactor = 1.0,
+            sides = 6,
+            startAtLocation = true
+        } = options;
+
         console.log(`Generating route... Attempt ${currentAttempt}, Target: ${targetDistanceMeters}m`);
         
-        const waypoints = this.generateGeometricLoop(lat, lng, targetDistanceMeters, radiusFactor, sides);
+        const waypoints = this.generateGeometricLoop(lat, lng, targetDistanceMeters, radiusFactor, sides, startAtLocation);
         const routeData = await this.fetchOSRMRoute(waypoints);
 
         const errorMargin = Math.abs(routeData.distance - targetDistanceMeters) / targetDistanceMeters;
@@ -125,18 +142,54 @@ const RouteEngine = {
             // If the route is drastically longer than target, dropping a waypoint might fix huge detours
             if (routeData.distance > targetDistanceMeters * 1.2 && sides > 3) {
                  console.log("Dropping a major stop to reduce detour distance...");
-                 return this.findOptimizedRoute(lat, lng, targetDistanceMeters, maxRetries, currentAttempt + 1, radiusFactor, sides - 1);
+                 return this.findOptimizedRoute(lat, lng, targetDistanceMeters, {
+                     ...options,
+                     currentAttempt: currentAttempt + 1,
+                     sides: sides - 1,
+                     radiusFactor: radiusFactor
+                 });
             }
 
             // Adjust radius proportional to the error, with dampening
             const correctionFactor = targetDistanceMeters / routeData.distance;
             const newRadiusFactor = radiusFactor * (0.6 + (0.4 * correctionFactor));
             
-            return this.findOptimizedRoute(lat, lng, targetDistanceMeters, maxRetries, currentAttempt + 1, newRadiusFactor, sides);
+            return this.findOptimizedRoute(lat, lng, targetDistanceMeters, {
+                ...options,
+                currentAttempt: currentAttempt + 1,
+                radiusFactor: newRadiusFactor
+            });
         }
 
         console.log(`Route finalized at ${Math.round(routeData.distance)}m after ${currentAttempt} attempts.`);
         return routeData;
+    },
+
+    /**
+     * Calculates kilometer-by-kilometer splits for a given distance and pace.
+     * @param {number} totalDistanceMeters 
+     * @param {number} avgPaceMinPerKm 
+     * @returns {Array} Array of {km, time}
+     */
+    calculateSplits: function(totalDistanceMeters, avgPaceMinPerKm = 5.5) {
+        const totalKm = totalDistanceMeters / 1000;
+        const splits = [];
+        
+        for (let i = 1; i <= Math.ceil(totalKm); i++) {
+            // Add slight variance to pace for realism (±5%)
+            const variance = 0.95 + (Math.random() * 0.1);
+            const pace = avgPaceMinPerKm * variance;
+            
+            const mins = Math.floor(pace);
+            const secs = Math.round((pace - mins) * 60);
+            const timeStr = `${mins}:${secs.toString().padStart(2, '0')}`;
+            
+            splits.push({
+                km: i,
+                time: timeStr
+            });
+        }
+        return splits;
     },
 
     /**

@@ -31,6 +31,8 @@ path.leaflet-interactive {
 /* Range Input Styling to match Tailwind Accent */
 input[type=range] {
     -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
     background: transparent;
 }
 
@@ -66,4 +68,46 @@ input[type=range]::-webkit-slider-runnable-track {
 
 .hidden-element {
     display: none !important;
+}
+
+/* Skeleton Loading Effect */
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: #1e293b; /* bg-panel lighter */
+}
+
+.skeleton::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0,
+        rgba(255, 255, 255, 0.05) 20%,
+        rgba(255, 255, 255, 0.1) 60%,
+        rgba(255, 255, 255, 0)
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.results-container.is-loading .data-value,
+.results-container.is-loading #splits-list,
+.results-container.is-loading #btn-google-maps {
+    display: none !important;
+}
+
+.results-container.is-loading .skeleton,
+.results-container.is-loading .skeleton-splits {
+    display: block !important;
 }
