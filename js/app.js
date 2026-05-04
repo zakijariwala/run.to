@@ -5,26 +5,47 @@ document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
 
     // UI Elements
+    const themeSelect = document.getElementById('theme-select');
+    const btnThemeToggle = document.getElementById('btn-theme-toggle');
+    const themeToggleIcon = document.getElementById('theme-toggle-icon');
+    const appLogo = document.getElementById('app-logo');
+    const statusText = document.getElementById('status-text');
     const modeDistance = document.getElementById('mode-distance');
     const modeTime = document.getElementById('mode-time');
     const inputLabel = document.getElementById('input-label');
     const inputDisplay = document.getElementById('input-display');
     const inputSlider = document.getElementById('input-slider');
-    const inputTicks = document.getElementById('input-ticks');
+    const inputUnit = document.getElementById('input-unit');
     const btnGenerate = document.getElementById('btn-generate');
     const btnExportGpx = document.getElementById('btn-export-gpx');
     const resultsSection = document.getElementById('results-section');
-    const resultsContainer = document.querySelector('.results-container');
+    const resultsContainer = document.querySelector('.results-stack');
     const resultDistance = document.getElementById('result-distance');
     const resultTime = document.getElementById('result-time');
     const splitsList = document.getElementById('splits-list');
     const loadingOverlay = document.getElementById('loading-overlay');
-    const mockWarning = document.getElementById('mock-warning');
     const btnGoogleMaps = document.getElementById('btn-google-maps');
     const toggleNearby = document.getElementById('toggle-nearby');
     const locationBlocker = document.getElementById('location-blocker');
     const btnRetryLocation = document.getElementById('btn-retry-location');
     const btnSkipLocation = document.getElementById('btn-skip-location');
+
+    // Themes Data
+    const THEMES = {
+        'run.to': { logo: 'run.to', status: 'Sky Talker OK', distance: 'Distance', time: 'Time', hunt: 'Target Distance', run: 'Target Time', start: 'Start exactly here', path: 'Generated Route', length: 'Distance', speed: 'Time', foot: 'Pace & Splits', rest: 'Major Stops', map: 'Open in Google Maps', carve: 'Export GPX', find: 'Generate Route', thinking: 'Calculating Path...' },
+        'stone.to': { logo: 'Big Stone', status: 'Sky Talker OK', distance: 'How Far', time: 'How Long', hunt: 'Hunt Size', run: 'Run Time', start: 'Start at Cave', path: 'Path Found', length: 'Length', speed: 'Speed', foot: 'Foot Speed', rest: 'Rest Rocks', map: 'Show Big Map', carve: 'Carve Rock', find: 'Find Loop', thinking: 'Thinking...' },
+        'cyber.to': { logo: 'cyber.to', status: 'SYSTEM ONLINE', distance: 'RANGE', time: 'UPTIME', hunt: 'TARGET RANGE', run: 'TARGET UPTIME', start: 'GEO-SYNC HERE', path: 'LINK ESTABLISHED', length: 'KM', speed: 'MIN', foot: 'TELEMETRY', rest: 'NODES', map: 'EXTERNAL HUD', carve: 'DOWNLOAD DATA', find: 'SYNC PATH', thinking: 'UPLOADING...' },
+        'steam.to': { logo: 'steam.to', status: 'BOILER PRESSURE OK', distance: 'MILEAGE', time: 'CHRONO', hunt: 'GOAL MILES', run: 'GOAL TIME', start: 'STATION START', path: 'MAP DRAWN', length: 'DISTANCE', speed: 'DURATION', foot: 'VALVE TIMING', rest: 'DEPOTS', map: 'CHART COURSE', carve: 'PRINT TICKET', find: 'IGNITE ENGINE', thinking: 'STEAMING...' },
+        'pastel.to': { logo: 'pastel.to', status: 'All Good!', distance: 'Dist.', time: 'Time', hunt: 'Goal Dist.', run: 'Goal Time', start: 'Start Here', path: 'My Route', length: 'Length', speed: 'Time', foot: 'My Pace', rest: 'Stops', map: 'Open Maps', carve: 'Save Route', find: 'Go!', thinking: 'Working...' },
+        'void.to': { logo: 'void.to', status: '...', distance: 'D', time: 'T', hunt: 'D_TARGET', run: 'T_TARGET', start: 'START', path: 'ROUTE', length: 'D', speed: 'T', foot: 'PACE', rest: 'WAYPOINTS', map: 'MAPS', carve: 'GPX', find: 'RUN', thinking: '...' },
+        'neon.to': { logo: 'neon.to', status: 'VIBE CHECK OK', distance: 'GLIDE', time: 'BEAT', hunt: 'GLIDE TARGET', run: 'BEAT TARGET', start: 'DROP IN', path: 'GLOW PATH', length: 'KM', speed: 'MIN', foot: 'RHYTHM', rest: 'CHILL SPOTS', map: 'RETRO MAP', carve: 'BURN GPX', find: 'VIBE ON', thinking: 'CHARGING...' },
+        'retro.to': { logo: 'retro.to', status: 'LEVEL 1-1', distance: 'SCORE', time: 'TIMER', hunt: 'GOAL SCORE', run: 'GOAL TIME', start: 'INSERT COIN', path: 'STAGE MAP', length: 'DIST', speed: 'TIME', foot: 'STATS', rest: 'POWER-UPS', map: 'WORLD MAP', carve: 'SAVE GAME', find: 'START GAME', thinking: 'LOADING...' },
+        'paper.to': { logo: 'paper.to', status: 'INK DRIED', distance: 'Length', time: 'Duration', hunt: 'Target Length', run: 'Target Duration', start: 'Origin', path: 'Drafted Path', length: 'KM', speed: 'MIN', foot: 'Pace', rest: 'Checkpoints', map: 'Atlas', carve: 'Publish', find: 'Write Path', thinking: 'Drafting...' },
+        'glass.to': { logo: 'glass.to', status: 'Crystal Clear', distance: 'Distance', time: 'Time', hunt: 'Goal Distance', run: 'Goal Time', start: 'Pinpoint', path: 'Refracted Route', length: 'KM', speed: 'MIN', foot: 'Pace', rest: 'Focal Points', map: 'Horizon', carve: 'Crystallize', find: 'Focus', thinking: 'Processing...' },
+        'moss.to': { logo: 'moss.to', status: 'Nature Pulse OK', distance: 'Trail', time: 'Sun', hunt: 'Trail Length', run: 'Sun Duration', start: 'Sprout', path: 'Root Path', length: 'KM', speed: 'MIN', foot: 'Growth', rest: 'Shelters', map: 'Wild Map', carve: 'Seed GPX', find: 'Grow Route', thinking: 'Blooming...' },
+        'blood.to': { logo: 'blood.to', status: 'Pulse Detected', distance: 'Hunt', time: 'Night', hunt: 'Hunt Target', run: 'Night Target', start: 'Lair', path: 'Cursed Path', length: 'KM', speed: 'MIN', foot: 'Heartbeat', rest: 'Altars', map: 'Hellscape', carve: 'Scribe', find: 'Sacrifice', thinking: 'Summoning...' },
+        'gold.to': { logo: 'gold.to', status: 'Prestige Active', distance: 'Journey', time: 'Era', hunt: 'Journey Goal', run: 'Era Goal', start: 'Estate', path: 'Golden Path', length: 'KM', speed: 'MIN', foot: 'Elegance', rest: 'Resorts', map: 'Concierge', carve: 'Mint', find: 'Refine', thinking: 'Polishing...' }
+    };
 
     // State
     let currentMode = 'distance'; // 'distance' or 'time'
@@ -34,240 +55,265 @@ document.addEventListener('DOMContentLoaded', () => {
     let startMarker = null;
     let userLocation = { lat: 51.505, lng: -0.09 }; // Default: London
 
+    // Animation Module
+    const Animate = {
+        spring(el, props, duration = 300) {
+            el.style.transition = `all ${duration}ms var(--spring)`;
+            Object.assign(el.style, props);
+        },
+        
+        staggerEntry(selector) {
+            const items = document.querySelectorAll(selector);
+            items.forEach((item, i) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    this.spring(item, { opacity: '1', transform: 'translateY(0)' });
+                }, i * 60);
+            });
+        },
+
+        tweenNumber(el, end, duration = 800, suffix = '') {
+            const currentText = el.innerText.split(' ')[0];
+            const start = parseFloat(currentText) || 0;
+            const startTime = performance.now();
+            
+            const update = (now) => {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const ease = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+                const current = start + (end - start) * ease;
+                
+                const valStr = current.toFixed(end % 1 === 0 ? 0 : 1);
+                el.innerHTML = `${valStr} <span class="data-unit-suffix">${suffix}</span>`;
+                
+                if (progress < 1) requestAnimationFrame(update);
+            };
+            requestAnimationFrame(update);
+        }
+    };
+
+    // Theme Management
+    function applyTheme(theme) {
+        document.body.setAttribute('data-theme', theme);
+        localStorage.setItem('theme-pref', theme);
+        themeSelect.value = theme;
+
+        const data = THEMES[theme] || THEMES['run.to'];
+        
+        // Update Text
+        appLogo.innerText = data.logo;
+        statusText.innerText = data.status;
+        
+        modeDistance.innerText = data.distance;
+        modeTime.innerText = data.time;
+        inputLabel.innerText = currentMode === 'distance' ? data.hunt : data.run;
+
+        const startLabel = document.querySelector('.hud-toggle-label');
+        if (startLabel) startLabel.innerHTML = `<i data-lucide="map-pin" class="w-3 h-3 text-accent"></i> ${data.start}`;
+        
+        const pathLabel = document.querySelector('#results-section label');
+        if (pathLabel) pathLabel.innerHTML = `<i data-lucide="map" class="w-3 h-3 text-accent"></i> ${data.path}`;
+        
+        const headers = document.querySelectorAll('.telemetry-header');
+        headers.forEach(h => {
+            const txt = h.innerText.toUpperCase();
+            if (txt === 'LENGTH' || txt === 'DISTANCE') h.innerText = data.length;
+            if (txt === 'SPEED' || txt === 'TIME') h.innerText = data.speed;
+            if (txt === 'TELEMETRY' || txt === 'PACE & SPLITS' || txt === 'FOOT SPEED') h.innerHTML = `<i data-lucide="timer" class="w-3 h-3 text-accent"></i> ${data.foot}`;
+            if (txt === 'REST ROCKS' || txt === 'MAJOR STOPS') h.innerHTML = `<i data-lucide="map-pin" class="w-3 h-3 text-emerald-400"></i> ${data.rest}`;
+        });
+        
+        if (btnGoogleMaps) btnGoogleMaps.innerText = data.map;
+        if (btnGenerate) btnGenerate.innerHTML = `<i data-lucide="play" class="w-5 h-5"></i> ${data.find}`;
+        
+        const loadingText = document.querySelector('#loading-overlay div:nth-child(2)');
+        if (loadingText) loadingText.innerText = data.thinking;
+
+        lucide.createIcons();
+
+        // Update Map Accent
+        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+        if (routePolyline) routePolyline.setStyle({ color: accent });
+        if (startMarker) startMarker.setStyle({ fillColor: accent });
+    }
+
+    themeSelect.addEventListener('change', (e) => applyTheme(e.target.value));
+
+    // Dark Mode Logic
+    function toggleDarkMode(force) {
+        const isDark = force !== undefined ? force : !document.body.classList.contains('dark');
+        document.body.classList.toggle('dark', isDark);
+        localStorage.setItem('dark-mode', isDark);
+        
+        if (themeToggleIcon) {
+            themeToggleIcon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+            lucide.createIcons();
+        }
+        
+        // Refresh theme colors
+        applyTheme(themeSelect.value);
+    }
+
+    if (btnThemeToggle) {
+        btnThemeToggle.addEventListener('click', () => {
+            toggleDarkMode();
+            // Tactile feedback: spring scale
+            Animate.spring(btnThemeToggle, { transform: 'scale(0.95)' });
+            setTimeout(() => Animate.spring(btnThemeToggle, { transform: 'scale(1)' }), 100);
+        });
+    }
+
     // Initialize Map
     function initMap() {
-        map = L.map('map', {
-            zoomControl: false,
-            attributionControl: false
-        }).setView([userLocation.lat, userLocation.lng], 13);
+        map = L.map('map', { zoomControl: false, attributionControl: false }).setView([userLocation.lat, userLocation.lng], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
-        // Standard OSM tiles (inverted via CSS for dark mode)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19
-        }).addTo(map);
-
+        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || "#00bcd4";
         startMarker = L.circleMarker([userLocation.lat, userLocation.lng], {
-            radius: 8,
-            fillColor: "#22d3ee",
-            color: "#fff",
-            weight: 2,
-            opacity: 1,
-            fillOpacity: 0.8
+            radius: 8, fillColor: accent, color: "#fff", weight: 2, opacity: 1, fillOpacity: 0.8
         }).addTo(map);
     }
 
     // Geolocation
     function locateUser() {
         if ("geolocation" in navigator) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    locationBlocker.classList.add('hidden');
-                    userLocation = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    };
-                    if (map) {
-                        map.setView([userLocation.lat, userLocation.lng], 14);
-                        startMarker.setLatLng([userLocation.lat, userLocation.lng]);
-                    }
-                },
-                (error) => {
-                    console.warn("Geolocation denied or failed.", error);
-                    locationBlocker.classList.remove('hidden');
-                    
-                    if (error.code === 1) {
-                        const title = locationBlocker.querySelector('h2');
-                        const desc = locationBlocker.querySelector('p.text-sm');
-                        
-                        // Detect if the denial is due to HTTP testing
-                        if (error.message && error.message.toLowerCase().includes('secure')) {
-                            if (title) title.innerText = "HTTPS Required";
-                            if (desc) desc.innerHTML = "Your browser blocks location services on non-secure connections. To test locally, you must access this via <strong>http://localhost:8000</strong> on your desktop, or deploy to a secure server (HTTPS).";
-                        } else {
-                            if (title) title.innerText = "Permission Blocked";
-                            if (desc) desc.innerHTML = "Your browser is blocking location access. <strong>You must click the 'Lock' icon in your URL bar</strong> (or check Safari Settings on iOS) to manually allow access, then try again.";
-                        }
-                    }
-                },
-                { enableHighAccuracy: true }
-            );
-        } else {
-            alert("Geolocation is not supported by your browser.");
+            navigator.geolocation.getCurrentPosition((position) => {
+                locationBlocker.classList.add('hidden');
+                userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
+                if (map) {
+                    map.setView([userLocation.lat, userLocation.lng], 14);
+                    startMarker.setLatLng([userLocation.lat, userLocation.lng]);
+                }
+            }, (error) => {
+                locationBlocker.classList.remove('hidden');
+            }, { enableHighAccuracy: true });
         }
     }
 
-    btnRetryLocation.addEventListener('click', () => {
-        // Must call locateUser synchronously to preserve the user gesture context for iOS Safari
-        locateUser();
-        
-        // Show loading state on retry button briefly
-        const originalText = btnRetryLocation.innerHTML;
-        btnRetryLocation.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Asking Sky...`;
-        lucide.createIcons();
-        
-        // Revert button text after a short delay
-        setTimeout(() => {
-            btnRetryLocation.innerHTML = originalText;
-            lucide.createIcons();
-        }, 1000);
-    });
-
-    if (btnSkipLocation) {
-        btnSkipLocation.addEventListener('click', () => {
-            locationBlocker.classList.add('hidden');
-        });
+    // Slider Logic
+    function updateSliderTrack() {
+        const val = inputSlider.value;
+        const min = inputSlider.min ? inputSlider.min : 0;
+        const max = inputSlider.max ? inputSlider.max : 100;
+        const pct = ((val - min) / (max - min)) * 100;
+        inputSlider.style.setProperty('--pct', pct + '%');
     }
+
+    inputSlider.addEventListener('input', (e) => {
+        updateSliderTrack();
+        inputDisplay.innerText = currentMode === 'distance' ? parseFloat(e.target.value).toFixed(1) : parseInt(e.target.value);
+    });
 
     // UI Event Listeners
     modeDistance.addEventListener('click', () => {
         currentMode = 'distance';
-        modeDistance.classList.add('bg-accent', 'text-bg', 'shadow-sm');
-        modeDistance.classList.remove('hover:text-text');
-        modeTime.classList.remove('bg-accent', 'text-bg', 'shadow-sm');
-        modeTime.classList.add('hover:text-text');
-
-        inputLabel.innerText = 'Hunt Size';
-        inputSlider.min = '1';
-        inputSlider.max = '20';
-        inputSlider.step = '0.5';
-        inputSlider.value = '5';
-        inputDisplay.innerHTML = `5.0<span class="text-xs text-text-dim ml-1 uppercase" id="input-unit">km</span>`;
-        inputTicks.innerHTML = `<span>1KM</span><span>10KM</span><span>20KM</span>`;
+        modeDistance.classList.add('active-tab');
+        modeTime.classList.remove('active-tab');
+        
+        const theme = themeSelect.value;
+        const data = THEMES[theme] || THEMES['run.to'];
+        inputLabel.innerText = data.hunt;
+        inputSlider.min = '1'; inputSlider.max = '20'; inputSlider.step = '0.5'; inputSlider.value = '5';
+        inputDisplay.innerText = '5.0'; inputUnit.innerText = 'km';
+        updateSliderTrack();
     });
 
     modeTime.addEventListener('click', () => {
         currentMode = 'time';
-        modeTime.classList.add('bg-accent', 'text-bg', 'shadow-sm');
-        modeTime.classList.remove('hover:text-text');
-        modeDistance.classList.remove('bg-accent', 'text-bg', 'shadow-sm');
-        modeDistance.classList.add('hover:text-text');
+        modeTime.classList.add('active-tab');
+        modeDistance.classList.remove('active-tab');
 
-        inputLabel.innerText = 'Run Time';
-        inputSlider.min = '10';
-        inputSlider.max = '120';
-        inputSlider.step = '5';
-        inputSlider.value = '30';
-        inputDisplay.innerHTML = `30<span class="text-xs text-text-dim ml-1 uppercase" id="input-unit">min</span>`;
-        inputTicks.innerHTML = `<span>10M</span><span>60M</span><span>120M</span>`;
-    });
-
-    inputSlider.addEventListener('input', (e) => {
-        if (currentMode === 'distance') {
-            const val = parseFloat(e.target.value).toFixed(1);
-            inputDisplay.innerHTML = `${val}<span class="text-xs text-text-dim ml-1 uppercase" id="input-unit">km</span>`;
-        } else {
-            const val = parseInt(e.target.value);
-            inputDisplay.innerHTML = `${val}<span class="text-xs text-text-dim ml-1 uppercase" id="input-unit">min</span>`;
-        }
+        const theme = themeSelect.value;
+        const data = THEMES[theme] || THEMES['run.to'];
+        inputLabel.innerText = data.run;
+        inputSlider.min = '10'; inputSlider.max = '120'; inputSlider.step = '5'; inputSlider.value = '30';
+        inputDisplay.innerText = '30'; inputUnit.innerText = 'min';
+        updateSliderTrack();
     });
 
     btnGenerate.addEventListener('click', async () => {
-        let distanceMeters = 0;
-        if (currentMode === 'distance') {
-            distanceMeters = parseFloat(inputSlider.value) * 1000;
-        } else {
-            // Convert time to distance based on 5.5 min/km running pace
-            const targetMins = parseInt(inputSlider.value);
-            distanceMeters = (targetMins / 5.5) * 1000;
-        }
+        const distanceMeters = currentMode === 'distance' ? parseFloat(inputSlider.value) * 1000 : (parseInt(inputSlider.value) / 5.5) * 1000;
+        const theme = themeSelect.value;
+        const data = THEMES[theme] || THEMES['run.to'];
 
-        // UI Loading State (Skeleton)
         btnGenerate.disabled = true;
-        btnGenerate.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Thinking...`;
+        btnGenerate.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> ${data.thinking}`;
         lucide.createIcons();
         
-        // Show results pane in loading state
         resultsSection.classList.remove('hidden');
-        resultsSection.classList.remove('opacity-0');
-        resultsContainer.classList.add('is-loading');
 
         try {
-            // Call Route Engine
-            const startAtLocation = toggleNearby ? toggleNearby.checked : true;
             currentRouteData = await RouteEngine.findOptimizedRoute(userLocation.lat, userLocation.lng, distanceMeters, {
-                startAtLocation: startAtLocation
+                startAtLocation: toggleNearby.checked
             });
 
-            // Draw on map
-            if (routePolyline) {
-                map.removeLayer(routePolyline);
-            }
+            if (routePolyline) map.removeLayer(routePolyline);
 
+            const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
             routePolyline = L.polyline(currentRouteData.coordinates, {
-                color: '#22d3ee',
-                weight: 5,
-                opacity: 0.9,
-                lineJoin: 'round'
+                color: accent, weight: 6, opacity: 0.9, lineJoin: 'round'
             }).addTo(map);
 
-            map.invalidateSize();
-            
-            // Adjust padding to ensure the route isn't hidden behind the mobile bottom sheet
-            const isMobile = window.innerWidth < 768;
-            const bottomPad = isMobile ? window.innerHeight * 0.55 : 50;
-            
-            map.fitBounds(routePolyline.getBounds(), { 
-                paddingTopLeft: [50, 50],
-                paddingBottomRight: [50, bottomPad]
-            });
+            // Path draw animation
+            const path = routePolyline._path;
+            const length = path.getTotalLength();
+            path.style.strokeDasharray = length;
+            path.style.strokeDashoffset = length;
+            setTimeout(() => {
+                path.style.transition = 'stroke-dashoffset 1.5s var(--spring)';
+                path.style.strokeDashoffset = '0';
+            }, 50);
 
-            // Update UI Results
-            resultDistance.innerText = (currentRouteData.distance / 1000).toFixed(2) + ' km';
-            
-            // Estimate running time based on an average 5.5 min/km pace
-            const estimatedMins = Math.round((currentRouteData.distance / 1000) * 5.5);
-            resultTime.innerText = estimatedMins + ' m';
+            map.fitBounds(routePolyline.getBounds(), { padding: [50, 50] });
 
-            // Update Splits
+            // Animate Results
+            Animate.staggerEntry('.animate-entry');
+            Animate.tweenNumber(resultDistance, currentRouteData.distance / 1000, 1000, 'km');
+            Animate.tweenNumber(resultTime, Math.round((currentRouteData.distance / 1000) * 5.5), 1000, 'm');
+
             const splits = RouteEngine.calculateSplits(currentRouteData.distance, 5.5);
-            splitsList.innerHTML = splits.map(s => `
-                <div class="flex justify-between border-b border-border pb-1">
-                    <span class="text-text-dim uppercase">KM ${s.km}</span>
-                    <span class="text-accent font-bold">${s.time}</span>
+            splitsList.innerHTML = splits.map((s, i) => `
+                <div class="telemetry-row animate-row" style="opacity:0; transform:translateY(8px); transition: all 300ms var(--spring); transition-delay: ${i * 40}ms">
+                    <span class="telemetry-label">KM ${s.km}</span>
+                    <span class="telemetry-value">${s.time}</span>
                 </div>
             `).join('');
             
-            // Generate Google Maps Link
-            if (currentRouteData.waypoints && currentRouteData.waypoints.length > 0) {
+            // Trigger row animations
+            setTimeout(() => {
+                document.querySelectorAll('.animate-row').forEach(r => {
+                    r.style.opacity = '1';
+                    r.style.transform = 'translateY(0)';
+                });
+            }, 100);
+
+            if (currentRouteData.waypoints) {
                 const origin = `${currentRouteData.waypoints[0].lat},${currentRouteData.waypoints[0].lng}`;
-                const destination = origin; // Closed loop
-                const viaWaypoints = currentRouteData.waypoints.slice(1, -1).map(p => `${p.lat},${p.lng}`).join('|');
-                const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&waypoints=${viaWaypoints}&travelmode=walking`;
-                btnGoogleMaps.href = mapsUrl;
-            }
-            
-            if (currentRouteData.isMock) {
-                mockWarning.classList.remove('hidden');
-            } else {
-                mockWarning.classList.add('hidden');
+                const via = currentRouteData.waypoints.slice(1, -1).map(p => `${p.lat},${p.lng}`).join('|');
+                btnGoogleMaps.href = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${origin}&waypoints=${via}&travelmode=walking`;
             }
 
-            // Remove loading state
-            resultsContainer.classList.remove('is-loading');
-
-        } catch (error) {
-            console.error("Error generating route:", error);
-            alert("Failed to generate route. Check console for details.");
-            resultsSection.classList.add('hidden');
         } finally {
-            // Restore UI
             btnGenerate.disabled = false;
-            btnGenerate.innerHTML = `<i data-lucide="play" class="w-4 h-4"></i> Find Loop`;
+            btnGenerate.innerHTML = `<i data-lucide="play" class="w-5 h-5"></i> ${data.find}`;
             lucide.createIcons();
-        }
-    });
-
-    btnExportGpx.addEventListener('click', () => {
-        if (currentRouteData) {
-            RouteEngine.exportToGPX(currentRouteData);
         }
     });
 
     // Boot
     initMap();
     locateUser();
+    updateSliderTrack();
+    
+    // Init Dark Mode
+    const savedDarkMode = localStorage.getItem('dark-mode') === 'true' || 
+                         (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    toggleDarkMode(savedDarkMode);
 
-    // Bottom Sheet Swipe Logic
+    applyTheme(localStorage.getItem('theme-pref') || 'run.to');
+
+    // Drag Handle Logic (Restored & Enhanced)
     const bottomSheet = document.getElementById('bottom-sheet');
     const dragHandle = document.getElementById('drag-handle');
     
@@ -280,6 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function setSheetPosition(y) {
             if (y < 0) y = 0;
+            bottomSheet.style.transition = 'none';
             bottomSheet.style.transform = `translateY(${y}px)`;
         }
 
@@ -287,75 +334,52 @@ document.addEventListener('DOMContentLoaded', () => {
             startY = e.touches[0].clientY;
             sheetHeight = bottomSheet.offsetHeight;
             isDragging = true;
-            bottomSheet.style.transition = 'none';
         }, {passive: true});
 
         dragHandle.addEventListener('touchmove', (e) => {
             if (!isDragging) return;
             const deltaY = e.touches[0].clientY - startY;
-            
-            if (isCollapsed) {
-                currentY = (sheetHeight - 40) + deltaY;
-            } else {
-                currentY = deltaY;
-            }
-            
+            currentY = isCollapsed ? (sheetHeight - 60) + deltaY : deltaY;
             if (currentY < 0) currentY = 0;
-            if (currentY > sheetHeight - 40) currentY = sheetHeight - 40;
-            
+            if (currentY > sheetHeight - 60) currentY = sheetHeight - 60;
             setSheetPosition(currentY);
         }, {passive: true});
 
         dragHandle.addEventListener('touchend', (e) => {
             if (!isDragging) return;
             isDragging = false;
-            bottomSheet.style.transition = 'transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)';
-            
             const threshold = sheetHeight * 0.2;
-            
             if (isCollapsed) {
-                if (currentY < (sheetHeight - 40) - threshold) {
+                if (currentY < (sheetHeight - 60) - threshold) {
                     isCollapsed = false;
-                    setSheetPosition(0);
+                    Animate.spring(bottomSheet, { transform: 'translateY(0)' });
                 } else {
-                    setSheetPosition(sheetHeight - 40);
+                    Animate.spring(bottomSheet, { transform: `translateY(${sheetHeight - 60}px)` });
                 }
             } else {
                 if (currentY > threshold) {
                     isCollapsed = true;
-                    setSheetPosition(sheetHeight - 40);
+                    Animate.spring(bottomSheet, { transform: `translateY(${sheetHeight - 60}px)` });
                 } else {
-                    setSheetPosition(0);
+                    Animate.spring(bottomSheet, { transform: 'translateY(0)' });
                 }
             }
         });
 
         dragHandle.addEventListener('click', () => {
             sheetHeight = bottomSheet.offsetHeight;
-            bottomSheet.style.transition = 'transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)';
             isCollapsed = !isCollapsed;
-            setSheetPosition(isCollapsed ? sheetHeight - 40 : 0);
+            Animate.spring(bottomSheet, { transform: isCollapsed ? `translateY(${sheetHeight - 60}px)` : 'translateY(0)' });
         });
         
-        // Auto-collapse slightly when map is clicked
-        map.on('click', () => {
-            if (!isCollapsed && window.innerWidth < 768) {
-                sheetHeight = bottomSheet.offsetHeight;
-                bottomSheet.style.transition = 'transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)';
-                isCollapsed = true;
-                setSheetPosition(sheetHeight - 40);
-            }
-        });
-    }
-
-    // Register PWA Service Worker
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js').then(reg => {
-                console.log('Service Worker registered with scope:', reg.scope);
-            }).catch(err => {
-                console.warn('Service Worker registration failed:', err);
+        if (window.innerWidth < 768) {
+            map.on('click', () => {
+                if (!isCollapsed) {
+                    sheetHeight = bottomSheet.offsetHeight;
+                    isCollapsed = true;
+                    Animate.spring(bottomSheet, { transform: `translateY(${sheetHeight - 60}px)` });
+                }
             });
-        });
+        }
     }
 });

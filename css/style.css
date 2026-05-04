@@ -1,13 +1,459 @@
 /* css/style.css */
 
 /* Google Fonts Import */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@700;900&family=Press+Start+2P&family=EB+Garamond:wght@400;700&family=Special+Elite&display=swap');
+
+:root {
+    /* Light Mode (Default) */
+    --bg: #f8fafc;
+    --panel: #ffffff;
+    --accent: #00bcd4;
+    --border: rgba(0, 188, 212, 0.2);
+    --text: #0f172a;
+    --text-dim: #64748b;
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-hud: 'Space Grotesk', sans-serif;
+    --font-data: 'JetBrains Mono', monospace;
+    --radius: 8px;
+    
+    /* Glass Effect */
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(0, 188, 212, 0.15);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+    /* Spring Physics */
+    --spring: cubic-bezier(.34, 1.56, .64, 1);
+    --spring-fast: cubic-bezier(.17, .67, .83, .67);
+    
+    /* Depth */
+    --shadow-lift: 0 8px 32px rgba(0, 0, 0, 0.1);
+    --highlight: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.dark {
+    /* Dark Mode Overrides */
+    --bg: #000000;
+    --panel: #050d0f;
+    --accent: #00e5ff;
+    --border: rgba(0, 229, 255, 0.2);
+    --text: #ffffff;
+    --text-dim: #888888;
+    --glass-bg: rgba(8, 12, 20, 0.85);
+    --glass-border: rgba(0, 229, 255, 0.08);
+    --glass-shadow: 4px 0 40px rgba(0, 0, 0, 0.6);
+    --shadow-lift: 0 8px 32px rgba(0, 0, 0, .55);
+    --highlight: inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+
+/* Global HUD Style */
+h1, h2, .hud-title {
+    font-family: var(--font-hud);
+    font-size: clamp(28px, 6vw, 56px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    line-height: 0.9;
+}
+
+.data-readout {
+    font-family: var(--font-data);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: clamp(24px, 5vw, 40px);
+}
+
+label, .hud-label {
+    font-family: var(--font-data);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+}
+
+/* Material Application */
+header, .bg-panel, .results-container {
+    background-image: var(--surface-texture, none);
+    box-shadow: var(--shadow-lift), var(--highlight);
+    border-radius: var(--radius);
+    transition: transform var(--spring), box-shadow var(--spring);
+}
+
+/* 01 // LOGO + NAV BAR */
+header {
+    background: var(--bg) !important;
+    border-bottom: 1px solid var(--border) !important;
+    border-radius: 0 !important;
+}
+
+.hud-logo {
+    font-family: var(--font-hud);
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+    color: var(--accent) !important;
+    text-shadow: 0 0 20px color-mix(in srgb, var(--accent), transparent 60%);
+}
+
+#theme-select {
+    font-family: var(--font-data) !important;
+    font-size: 10px !important;
+    letter-spacing: 0.15em !important;
+    border: 1px solid var(--border) !important;
+    padding: 3px 8px !important;
+    background: transparent !important;
+    color: var(--text-dim) !important;
+    box-shadow: none !important;
+}
+
+/* 02 // SIDEBAR PANEL */
+aside#bottom-sheet {
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(20px) saturate(1.4) !important;
+    border-right: 1px solid var(--glass-border) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), var(--glass-shadow) !important;
+    transition: transform var(--spring);
+}
+
+/* 03 // MODE TOGGLE */
+.mode-toggle-container button {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    font-family: var(--font-data);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: all 200ms cubic-bezier(.34, 1.56, .64, 1);
+    padding: 12px !important;
+}
+
+.mode-toggle-container button.active-tab {
+    background: var(--accent) !important;
+    color: #000 !important;
+    font-weight: 700 !important;
+    border: 1px solid var(--accent) !important;
+    box-shadow: 0 4px 0 color-mix(in srgb, var(--accent), black 40%), 0 6px 20px color-mix(in srgb, var(--accent), transparent 80%) !important;
+    transform: translateY(-4px);
+}
+
+/* 04 // INPUT DISPLAY (ALTIMETER) */
+.dial-container {
+    padding: 12px 0 !important;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.dial-value {
+    font-family: var(--font-hud);
+    font-size: clamp(52px, 14vw, 72px) !important;
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    color: var(--accent) !important;
+    text-shadow: 0 0 40px color-mix(in srgb, var(--accent), transparent 65%);
+}
+
+.hud-label-unit {
+    font-family: var(--font-data);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: color-mix(in srgb, var(--accent), transparent 60%);
+    display: block;
+    margin-top: 4px;
+    text-transform: uppercase;
+}
+
+/* 05 // PHYSICAL SLIDER */
+input[type=range] {
+    --pct: 25%;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent) var(--pct), color-mix(in srgb, var(--accent), black 80%) var(--pct)) !important;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px !important;
+    height: 22px !important;
+    background: var(--accent) !important;
+    border: 3px solid var(--bg) !important;
+    box-shadow: 0 0 0 1px var(--accent), 0 4px 12px color-mix(in srgb, var(--accent), transparent 65%) !important;
+    transition: transform 150ms cubic-bezier(.34, 1.56, .64, 1) !important;
+    margin-top: -9px !important;
+    border-radius: 50%;
+}
+
+input[type=range]:active::-webkit-slider-thumb {
+    transform: scale(1.2);
+}
+
+/* 06 // PILL TOGGLE */
+#toggle-nearby-container {
+    width: 52px !important;
+    height: 28px !important;
+    background: color-mix(in srgb, var(--accent), black 80%) !important;
+    border: 1px solid var(--border) !important;
+    position: relative;
+    cursor: pointer;
+    border-radius: 999px !important;
+    transition: background-color 220ms var(--spring), border-color 220ms var(--spring);
+}
+
+#toggle-nearby-container .thumb {
+    width: 22px !important;
+    height: 22px !important;
+    top: 2px !important;
+    left: 2px !important;
+    position: absolute;
+    background: var(--text-dim);
+    border-radius: 50% !important;
+    transition: transform 220ms var(--spring), background-color 220ms var(--spring), box-shadow 220ms var(--spring);
+}
+
+input#toggle-nearby:checked + .thumb {
+    transform: translateX(24px);
+    background: var(--accent);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--accent), transparent 50%);
+}
+
+input#toggle-nearby:checked ~ #toggle-nearby-container {
+    background: color-mix(in srgb, var(--accent), transparent 85%) !important;
+    border-color: var(--accent) !important;
+}
+
+.hud-toggle-label {
+    text-transform: uppercase;
+    font-family: var(--font-data);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+}
+
+/* 07 // RESULT GAUGE CARDS */
+.results-stack .bg-panel {
+    background: var(--panel) !important;
+    border: 1px solid var(--border) !important;
+    border-top: 2px solid var(--accent) !important;
+    box-shadow: inset 0 1px 0 var(--highlight), var(--shadow-lift) !important;
+    padding: 24px !important;
+}
+
+.data-readout-gauge {
+    font-family: var(--font-hud);
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    color: var(--accent);
+}
+
+.data-unit-suffix {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: color-mix(in srgb, var(--accent), transparent 60%);
+    vertical-align: super;
+    text-transform: uppercase;
+}
+
+/* 08 // TELEMETRY TABLE */
+.telemetry-header {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: color-mix(in srgb, var(--accent), transparent 65%);
+    text-transform: uppercase;
+    font-family: var(--font-data);
+}
+
+.telemetry-row {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.telemetry-label {
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.telemetry-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    font-family: var(--font-mono);
+}
+
+/* 09 // PHYSICAL GENERATE BUTTON */
+#btn-generate {
+    background: var(--accent) !important;
+    color: #000 !important;
+    font-weight: 900 !important;
+    font-size: 12px !important;
+    letter-spacing: 0.18em !important;
+    text-transform: uppercase;
+    border-radius: 8px !important;
+    height: 52px !important;
+    box-shadow: 0 6px 0 color-mix(in srgb, var(--accent), black 40%), 0 8px 30px color-mix(in srgb, var(--accent), transparent 80%) !important;
+    border: none !important;
+    transition: all 120ms cubic-bezier(.17, .67, .83, .67) !important;
+    transform: translateY(0);
+}
+
+#btn-generate:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 0 color-mix(in srgb, var(--accent), black 40%), 0 10px 40px color-mix(in srgb, var(--accent), transparent 70%) !important;
+}
+
+#btn-generate:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 color-mix(in srgb, var(--accent), black 40%) !important;
+}
+
+/* Focus Halo */
+input:focus, button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accent), 0 0 0 5px color-mix(in srgb, var(--accent), transparent 80%);
+}
+
+/* Theme Overrides */
+
+[data-theme="stone.to"] {
+    --bg: #1a1a15;
+    --panel: #24241e;
+    --accent: #d4d4bc;
+    --border: #3d3d33;
+    --text: #f0f0e8;
+    --text-dim: #8a8a7a;
+    --font-sans: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --surface-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3Y%3Cfilter id='noiseFilter'%3Y%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+[data-theme="cyber.to"] {
+    --bg: #050505;
+    --panel: #0d0d0d;
+    --accent: #f0f;
+    --border: #303;
+    --text: #0ff;
+    --text-dim: #088;
+    --surface-texture: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px);
+}
+
+[data-theme="steam.to"] {
+    --bg: #2b1d0e;
+    --panel: #3d2b19;
+    --accent: #cd7f32;
+    --border: #5c4033;
+    --text: #e5c090;
+    --text-dim: #a0785a;
+    --font-sans: 'EB Garamond', serif;
+}
+
+[data-theme="pastel.to"] {
+    --bg: #fff5f5;
+    --panel: #ffffff;
+    --accent: #ff9999;
+    --border: #ffcccc;
+    --text: #444444;
+    --text-dim: #999999;
+}
+
+[data-theme="void.to"] {
+    --bg: #000000;
+    --panel: #000000;
+    --accent: #ffffff;
+    --border: #111111;
+    --text: #ffffff;
+    --text-dim: #444444;
+}
+
+[data-theme="neon.to"] {
+    --bg: #0d0221;
+    --panel: #240b36;
+    --accent: #00f5d4;
+    --border: #9b5de5;
+    --text: #fee440;
+    --text-dim: #f15bb5;
+}
+
+[data-theme="retro.to"] {
+    --bg: #c0c0c0;
+    --panel: #c0c0c0;
+    --accent: #000080;
+    --border: #ffffff;
+    --text: #000000;
+    --text-dim: #444444;
+    --font-sans: 'Press Start 2P', cursive;
+}
+
+[data-theme="paper.to"] {
+    --bg: #f5f5f5;
+    --panel: #ffffff;
+    --accent: #000000;
+    --border: #000000;
+    --text: #000000;
+    --text-dim: #666666;
+    --font-sans: 'Special Elite', cursive;
+}
+
+[data-theme="glass.to"] {
+    --bg: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+    --panel: rgba(255, 255, 255, 0.08);
+    --accent: #ffffff;
+    --border: rgba(255, 255, 255, 0.15);
+    --text: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.6);
+}
+
+[data-theme="moss.to"] {
+    --bg: #0d1a0d;
+    --panel: #1a2e1a;
+    --accent: #7cfc00;
+    --border: #2e4d2e;
+    --text: #e0f2e0;
+    --text-dim: #8fb38f;
+}
+
+[data-theme="blood.to"] {
+    --bg: #0a0000;
+    --panel: #1a0000;
+    --accent: #ff0000;
+    --border: #330000;
+    --text: #cc0000;
+    --text-dim: #660000;
+    --font-sans: 'EB Garamond', serif;
+}
+
+[data-theme="gold.to"] {
+    --bg: #050505;
+    --panel: #0a0a0a;
+    --accent: #d4af37;
+    --border: #2a2a2a;
+    --text: #ffffff;
+    --text-dim: #888888;
+}
 
 /* Leaflet Dark Mode Overrides */
 .leaflet-container {
-    background-color: #0f172a !important;
-    /* bg-bg */
-    font-family: 'Inter', sans-serif !important;
+    background-color: var(--bg) !important;
+    font-family: var(--font-sans) !important;
 }
 
 /* Add a filter to tiles to make standard OSM tiles dark */
@@ -15,45 +461,22 @@
     filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
 }
 
-/* Hide leaflet branding for a cleaner POC look */
+[data-theme="paper.to"] .leaflet-tile-pane,
+[data-theme="pastel.to"] .leaflet-tile-pane,
+:root:not(.dark) .leaflet-tile-pane {
+    filter: grayscale(100%) contrast(120%);
+}
+
+/* Hide leaflet branding */
 .leaflet-control-attribution {
     display: none !important;
 }
 
-/* Custom Polyline glow effects using SVG drop-shadow (Leaflet paths are SVG) */
+/* Custom Polyline glow effects */
 path.leaflet-interactive {
     stroke-linecap: round;
     stroke-linejoin: round;
-    /* Adding a subtle glow to the route line */
-    filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.5));
-}
-
-/* Range Input Styling to match Tailwind Accent */
-input[type=range] {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background: transparent;
-}
-
-input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    height: 16px;
-    width: 16px;
-    border-radius: 50%;
-    background: #22d3ee;
-    cursor: pointer;
-    margin-top: -6px;
-    /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
-    box-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
-}
-
-input[type=range]::-webkit-slider-runnable-track {
-    width: 100%;
-    height: 4px;
-    cursor: pointer;
-    background: #334155;
-    border-radius: 2px;
+    filter: drop-shadow(0 0 4px var(--accent));
 }
 
 /* Utility classes for JS toggling */
@@ -74,7 +497,7 @@ input[type=range]::-webkit-slider-runnable-track {
 .skeleton {
     position: relative;
     overflow: hidden;
-    background-color: #1e293b; /* bg-panel lighter */
+    background-color: var(--panel);
 }
 
 .skeleton::after {
