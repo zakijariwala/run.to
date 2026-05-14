@@ -1,36 +1,40 @@
-# run.to | Project Context
+---
+Revision    : 2
+Last Updated: 2026-05-14
+Trigger     : Initial cold audit update
+Status      : CURRENT
+---
 
-## Overview
-`run.to` is a high-fidelity, "Not Boring" inspired route generation engine. It transforms a standard utility into a tactile, cockpit-like object using bold typography, 3D depth, and spring-based physics.
+# Active Reasoning Snapshot
 
-## Tech Stack
-- **Frontend:** Vanilla HTML5, CSS3 (Custom Properties), Tailwind CSS (Zero-build CDN).
-- **Maps:** Leaflet.js with custom dark/light filtering.
-- **Icons:** Lucide Icons.
-- **Typography:** Space Grotesk (HUD/Headers), JetBrains Mono (Data/Telemetry), Inter (UI).
+## Section 0 — Purpose
+This file captures active assumptions and technical reasoning. Read alongside `implementation.md` at the start of every session.
 
-## Architecture
-- **Material System:** Dual-tier CSS variable system. `:root` defines Light mode base, `.dark` class on `<body>` overrides for Dark mode.
-- **Theming Engine:** 13 materials (Glass, Stone, Metal, etc.) applied via `data-theme`. Variable-driven to support both Light and Dark variants.
-- **Surgical HUD Overhaul:** Premium "Not Boring" components with physical properties:
-    - **Altimeter:** 900 weight wordmark/display with dynamic glow.
-    - **Physical Slider:** Interactive track fill (`--pct`) and spring-animated thumb.
-    - **Tactile Toggle:** 3D segmented control with "sitting up" active state.
-    - **Dashboard Gauges:** Material cards with inset highlights and top-accent lines.
-    - **Action Button:** Heavy 3D "punch-down" physics on press.
+## Section 1 — Active Context Snapshot
+- **Timestamp**: 2026-05-14 10:00 AM
+- **Current Focus**: Initial cold audit complete. Handoff to next development task (resolving HIGH issues).
 
-## Key Functions (js/app.js)
-- `applyTheme(theme)`: Sets material skin, updates `localStorage`, and swaps UI terminology.
-- `toggleDarkMode()`: Switches between Light/Dark modes, updates icons, and saves preference.
-- `updateSliderTrack()`: Syncs physical track fill with input value.
-- `Animate`: Module for `spring`, `tweenNumber` (gauge LERP), and `staggerEntry`.
+## Section 2 — Technical Reasoning
+- **Fuzzy Logic for Distance**: The recursive `findOptimizedRoute` exists because raw geometric polygons rarely match real-world road lengths. Scaling the radius is the simplest way to converge on a target without a complex pathfinding-from-scratch implementation.
+- **Dual-Tier Variable System**: CSS variables are used instead of multiple stylesheets to allow "Not Boring" style tactile transitions between themes without page reloads or heavy DOM mutation.
+- **Zero-Build Choice**: The project avoids Node.js for the core app to remain "browser-native", ensuring it can be hosted on simple static platforms (GitHub Pages, etc.) with zero deployment overhead.
 
-## Recent Changes
-- Finalized global Light/Dark mode toggle with tactile HUD button.
-- Refactored entire CSS to be variable-driven (no hardcoded hex in components).
-- Integrated surgical overhaul for all cockpit components.
-- Established `context.md` for session continuity.
+## Section 3 — Active Assumptions
+1. **HIGH**: The OSRM public demo server will remain available for development.
+2. **MEDIUM**: Users will predominantly use the app in dark mode, given the "Cyber" aesthetic.
+3. **HIGH**: Capacitor is the chosen path for mobile, avoiding a rewrite in a native framework.
+4. **LOW**: The Haversine mock fallback is rarely triggered in urban areas with good connectivity. (NEEDS VERIFICATION)
 
-## Future Directives
-- Maintain "Not Boring" physicality in all new components.
-- Ensure all text terminology maps correctly to the 13 materials in `THEMES` object.
+## Section 4 — Open Questions
+1. Is there a specific reason the GPX export button was left out of the UI despite the logic being present?
+2. Are there any specific performance bottlenecks observed during the 5-iteration optimization loop?
+3. Should the "Caveman" theme become the default brand, or remain one of 13?
+
+## Section 5 — Context Continuity Check
+- Alignment with `implementation.md`: [PHASE: 1 | STEP: 1 | STATUS: COMPLETE]
+- Blocked items: None.
+- Next Action: Wire up the GPX export button and address CDN dependency risks.
+- Drift Check: CLEAN.
+
+## Section 6 — Constraint Discovery Log
+(Empty)
